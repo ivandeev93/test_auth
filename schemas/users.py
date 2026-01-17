@@ -8,7 +8,7 @@ class UserCreate(BaseModel):
     """
     email: EmailStr = Field(description="Email пользователя")
     password: str = Field(min_length=8, description="Пароль (минимум 8 символов)")
-    role: str = Field(default="buyer", pattern="^(user|admin)$", description="Роль: 'user' или 'admin'")
+    role: str = Field(default="buyer", pattern="^(client|admin)$", description="Роль: 'client' или 'admin'")
 
 
 class User(BaseModel):
