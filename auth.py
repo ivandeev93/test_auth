@@ -65,8 +65,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme),
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
+        user_id: int | None = payload.get("sub")
+        if user_id is None:
             raise credentials_exception
     except jwt.ExpiredSignatureError:
         raise HTTPException(
@@ -76,11 +76,11 @@ async def get_current_user(token: str = Depends(oauth2_scheme),
         )
     except jwt.PyJWTError:
         raise credentials_exception
-    result = await db.scalars(
-        select(UserModel).where(UserModel.email == email, UserModel.is_active == True))
-    user = result.first()
-    if user is None:
+
+    user = await db.get(UserModel, user_id)
+    if not user or not user.is_active:
         raise credentials_exception
+
     return user
 
 

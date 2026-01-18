@@ -29,6 +29,7 @@ async def create_user(user: UserCreate, db: AsyncSession = Depends(get_async_db)
 
     # Создание объекта пользователя с хешированным паролем
     db_user = UserModel(
+        name=user.name,
         email=user.email,
         hashed_password=hash_password(user.password),
         role=user.role
@@ -54,8 +55,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token = create_access_token(data={"sub": user.email, "role": user.role, "id": user.id})
-    refresh_token = create_refresh_token(data={"sub": user.email, "role": user.role, "id": user.id})
+    access_token = create_access_token(data={"sub": user.id})
+    refresh_token = create_refresh_token(data={"sub": user.id})
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 
@@ -76,9 +77,10 @@ async def refresh_token(refresh_token: str, db: AsyncSession = Depends(get_async
             raise credentials_exception
     except jwt.PyJWTError:
         raise credentials_exception
+
     result = await db.scalars(select(UserModel).where(UserModel.email == email, UserModel.is_active == True))
     user = result.first()
     if user is None:
         raise credentials_exception
-    access_token = create_access_token(data={"sub": user.email, "role": user.role, "id": user.id})
+    access_token = create_access_token(data={"sub": user.id})
     return {"access_token": access_token, "token_type": "bearer"}

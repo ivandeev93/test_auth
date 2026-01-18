@@ -3,12 +3,23 @@ from pydantic import BaseModel, Field, ConfigDict, EmailStr
 
 class UserCreate(BaseModel):
     """
-    Модель для создания и обновления пользователя.
-    Используется в POST и PUT запросах.
+    Модель для создания пользователя.
+    Используется в POST запросах.
     """
+    name: str = Field(description="Имя пользователя")
     email: EmailStr = Field(description="Email пользователя")
     password: str = Field(min_length=8, description="Пароль (минимум 8 символов)")
-    role: str = Field(default="buyer", pattern="^(client|admin)$", description="Роль: 'client' или 'admin'")
+    password_repeat: str = Field(min_length=8, description="Повтор пароля")
+    role: str = Field(default="client", pattern="^(client|admin)$", description="Роль: 'client' или 'admin'")
+
+
+class UserUpdate(BaseModel):
+    """
+    Модель для обновления пользователя.
+    Используется в PUT и PATCH запросах.
+    """
+    name: str | None = None
+    password: str | None = Field(default=None, min_length=8, description="Ввод нового пароля")
 
 
 class User(BaseModel):
@@ -17,6 +28,7 @@ class User(BaseModel):
     Используется в GET-запросах.
     """
     id: int = Field(description="Уникальный идентификатор пользователя")
+    name: str = Field(description="Имя пользователя")
     email: EmailStr = Field(description="Email пользователя")
     is_active: bool = Field(description="Активность пользователя")
     role: str = Field(description="Роль пользователя")
