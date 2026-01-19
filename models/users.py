@@ -14,4 +14,4 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"), nullable=False)
-    role = relationship("Role", back_populates="user")
+    role = relationship("Role", back_populates="users")

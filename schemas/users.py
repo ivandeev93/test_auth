@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, ConfigDict, EmailStr
+from pydantic import BaseModel, Field, ConfigDict, EmailStr, model_validator
 
 
 class UserCreate(BaseModel):
@@ -10,7 +10,13 @@ class UserCreate(BaseModel):
     email: EmailStr = Field(description="Email пользователя")
     password: str = Field(min_length=8, description="Пароль (минимум 8 символов)")
     password_repeat: str = Field(min_length=8, description="Повтор пароля")
-    role: str = Field(default="client", pattern="^(client|admin)$", description="Роль: 'client' или 'admin'")
+    role_id: int = Field(description="ID роли пользователя")
+
+    @model_validator(mode="after")
+    def check_passwords_match(self):
+        if self.password != self.password_repeat:
+            raise ValueError("Passwords do not match")
+        return self
 
 
 class UserUpdate(BaseModel):
@@ -31,6 +37,6 @@ class User(BaseModel):
     name: str = Field(description="Имя пользователя")
     email: EmailStr = Field(description="Email пользователя")
     is_active: bool = Field(description="Активность пользователя")
-    role: str = Field(description="Роль пользователя")
+    role_id: int = Field(description="ID роли пользователя")
 
     model_config = ConfigDict(from_attributes=True)
