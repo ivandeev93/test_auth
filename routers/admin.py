@@ -7,6 +7,7 @@ from models.role_permissions import RolePermission
 from schemas.users import User as UserSchema
 from db_depends import get_async_db
 from auth import get_current_admin
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -78,7 +79,17 @@ async def assign_permission_to_role(role_id: int, permission_id: int,
     db.add(rp)
     try:
         await db.commit()
-    except:
+    except IntegrityError:
         await db.rollback()
-        raise HTTPException(status_code=400, detail="Permission already assigned")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Permission already assigned"
+        )
+    except SQLAlchemyError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Database error"
+        )
+
     return {"detail": "Permission assigned"}

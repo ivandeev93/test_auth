@@ -1,8 +1,12 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import DeclarativeBase
+import os
 
 # Строка подключения для PostgreSQl
-DATABASE_URL = "postgresql+asyncpg://auth_user:31031993IDid!@localhost:5432/test_auth_db"
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is not set")
+
 
 # Создаём Engine
 async_engine = create_async_engine(DATABASE_URL, echo=True)

@@ -130,3 +130,16 @@ DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/dbname
 
 
 3. Создать таблицы в PostgreSQL через Alembic или SQLAlchemy (create_tabels.py)
+
+### Запуск через Docker
+
+```bash
+docker-compose up --build
+
+API будет доступно по адресу:
+
+http://localhost:8000
+
+Swagger-документация:
+
+http://localhost:8000/docs
